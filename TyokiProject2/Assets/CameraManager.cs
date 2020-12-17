@@ -4,114 +4,75 @@ using UnityEngine;
 
 public class CameraManager : MonoBehaviour
 {
-    const float MOVE_SPEED = 0.2f;
-    private GameObject MainCamera;
-    private GameObject targetObject; // 注視したいオブジェクト
+    //x軸の角度を制限するための変数
+    const float ANGLE_UP = 60f;
+    const float ANGLE_DOWN = -60f;
 
-    // カメラの回転速度を格納する変数
-    public Vector3 rotationSpeed;
-    // マウス移動方向とカメラ回転方向を反転する判定フラグ
-    public bool reverse;
-    // マウス座標を格納する変数
-    private Vector2 lastMousePosition;
-    // カメラの角度を格納する変数（初期値に0,0を代入）
-    private Vector3 newAngle = new Vector3(0, 0, 0);
+    [SerializeField] Camera MainCamera;
+    private GameObject player; // 操作キャラ
+
+    // カメラの回転速度
+    [SerializeField] float rotate_speed = 3f;
+    // Axsiの位置を指定する変数
+    [SerializeField] Vector3 axisPos;
+
+    // マウススクロールの値を入れる
+    [SerializeField] float scroll;
+    // マウスホイールの値を保存
+    [SerializeField] float scrollLog;
 
     void Start()
     {
-        MainCamera = GameObject.Find("Main Camera");
-        targetObject = GameObject.Find("Cube");
+        player = GameObject.Find("Cube");
+
+        //CameraのAxisに相対的な位置をlocalPositionで指定
+        MainCamera.transform.localPosition = new Vector3(0, 0, -3);
+        //CameraとAxisの向きを最初だけそろえる
+        MainCamera.transform.localRotation = transform.rotation;
     }
 
     // Update is called once per frame
     void Update()
     {
-        
-        if (Input.GetKey(KeyCode.W))
-        {
-            MainCamera.transform.Translate(0, 0, MOVE_SPEED);
-        }
 
-        if (Input.GetKey(KeyCode.A))
-        {
-            MainCamera.transform.Translate(MOVE_SPEED * -1, 0, 0);
-        }
+        //Axisの位置をplayerの位置＋axisPosで決める
+        transform.position = player.transform.position + axisPos;
+        //三人称の時のCameraの位置にマウススクロールの値を足して位置を調整
+        //thirdPosAdd = thiirdPos + new Vector3(0, 0, scrollLog);
 
-        if (Input.GetKey(KeyCode.S))
-        {
-            MainCamera.transform.Translate(0, 0, MOVE_SPEED * -1);
-        }
+        //マウススクロールの値を入れる
+        scroll = Input.GetAxis("Mouse ScrollWheel");
+        //scrollAdd += Input.GetAxis("Mouse ScorllWheel");
+        //マウススクロールの値は動かさないと0になるのでここで保存する
+        scrollLog += Input.GetAxis("Mouse ScrollWheel");
 
-        if (Input.GetKey(KeyCode.D))
-        {
-            MainCamera.transform.Translate(MOVE_SPEED, 0, 0);
-        }
+        //Cameraの位置、ｚ軸にスクロール分を加える
+        MainCamera.transform.localPosition
+                    = new Vector3(MainCamera.transform.localPosition.x,
+                    MainCamera.transform.localPosition.y,
+                    MainCamera.transform.localPosition.z + scroll);
 
-        // 右クリックした時
-        if (Input.GetMouseButtonDown(1))
+        if (Input.GetMouseButton(1))
         {
-            // カメラの角度を変数"newAngle"に格納
-            newAngle = new Vector3(0, 0, 0);
-            // マウス座標を変数"lastMousePosition"に格納
-            lastMousePosition = Input.mousePosition;
-        }
+            //Cameraの角度にマウスからとった値を入れる
+            transform.eulerAngles += new Vector3(
+                Input.GetAxis("Mouse Y") * rotate_speed,
+                Input.GetAxis("Mouse X") * rotate_speed
+                , 0);
 
-        // 左ドラッグしている間
-        else if (Input.GetMouseButton(1))
-        {
-            Debug.Log("押してる");
-            //カメラ回転方向の判定フラグが"true"の場合
-            if (!reverse)
+            //x軸の角度
+            float angleX = transform.eulerAngles.x;
+            //x軸の値を180度超えたら360引くことで制限しやすくなる
+            if (angleX >= 180)
             {
-                // Y軸の回転：マウスドラッグ方向に視点回転
-                //（クリック時の座標とマウス座標の現在値の差分値）
-                newAngle.y -= (lastMousePosition.x - Input.mousePosition.x);
-
-                // X軸の回転：マウスドラッグ方向に視点回転
-                //（クリック時の座標とマウス座標の現在値の差分値）
-                newAngle.x -= (Input.mousePosition.y - lastMousePosition.y);
-          
-
-                // マウス座標を変数"lastMousePosition"に格納
-                lastMousePosition = Input.mousePosition;
+                angleX = angleX - 360;
             }
-
-            // カメラ回転方向の判定フラグが"reverse"の場合
-            else if (reverse)
-            {
-                // Y軸の回転：マウスドラッグと逆方向に視点回転
-                newAngle.y -= (Input.mousePosition.x - lastMousePosition.x) ;
-                // X軸の回転：マウスドラッグと逆方向に視点回転
-                newAngle.x -= (lastMousePosition.y - Input.mousePosition.y);
-
-                // マウス座標を変数"lastMousePosition"に格納
-                lastMousePosition = Input.mousePosition;
-            }
-
-            transform.RotateAround(targetObject.transform.position, newAngle, 1f);
-        }
-
-        //Qボタンでカメラ反転
-        if (Input.GetKeyDown(KeyCode.Q))
-        {
-            DirectionChange();
-        }
-    }
-
-    // マウスドラッグ方向と視点回転方向を反転する処理
-    public void DirectionChange()
-    {
-        // 判定フラグ変数"reverse"が"false"であれば
-        if (!reverse)
-        {
-            // 判定フラグ変数"reverse"に"true"を代入
-            reverse = true;
-        }
-        // でなければ（判定フラグ変数"reverse"が"true"であれば）
-        else
-        {
-            // 判定フラグ変数"reverse"に"false"を代入
-            reverse = false;
+            //Mathf.Clamp（値、最小値、最大値）でx軸の値を制限する
+            transform.eulerAngles = new Vector3(
+                Mathf.Clamp(angleX, ANGLE_DOWN, ANGLE_UP),
+                transform.eulerAngles.y,
+                transform.eulerAngles.z
+                );
         }
     }
 }
