@@ -24,9 +24,6 @@ public class Player : MonoBehaviour
     //Capsule Colliderを入れる
     CapsuleCollider caps;
 
-    //一定範囲内にいるかどうかを判断するフラグ
-    public static bool invincibly = false;
-
     void Start()
     {
         //Animatorコンポーネントを取得
@@ -72,15 +69,5 @@ public class Player : MonoBehaviour
         transform.position += transform.forward * z + transform.right * x;
     }
 
-    //一定範囲内にいる間
-    private void OnTriggerEnter(Collider other)
-    {
-        invincibly = true;
-    }
-
-    //一定範囲内からでたら
-    private void OnTriggerExit(Collider other)
-    {
-        invincibly = false;
-    }
+    
 }
