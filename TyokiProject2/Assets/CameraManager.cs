@@ -9,7 +9,7 @@ public class CameraManager : MonoBehaviour
     const float ANGLE_DOWN = -60f;
 
     [SerializeField] Camera MainCamera;
-    private GameObject player; // 操作キャラ
+    [SerializeField] GameObject player; // 操作キャラ
 
     // カメラの回転速度
     [SerializeField] float rotate_speed = 3f;
@@ -23,7 +23,7 @@ public class CameraManager : MonoBehaviour
 
     void Start()
     {
-        player = GameObject.Find("Cube");
+        //player = GameObject.Find("Cube");
 
         //CameraのAxisに相対的な位置をlocalPositionで指定
         MainCamera.transform.localPosition = new Vector3(0, 0, -3);
