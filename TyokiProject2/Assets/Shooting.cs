@@ -25,7 +25,7 @@ public class Shooting : MonoBehaviour
         {
 
             //弾丸の複製
-            if (!Player.invincibly)
+            if (!Area.invincibly)
             {
                 bullets = Instantiate(bullet) as GameObject;
             }
