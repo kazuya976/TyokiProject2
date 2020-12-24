@@ -8,8 +8,8 @@ public class CameraManager : MonoBehaviour
     const float ANGLE_UP = 60f;
     const float ANGLE_DOWN = -60f;
 
-    [SerializeField] Camera MainCamera;
-    [SerializeField] GameObject player; // 操作キャラ
+    Camera MainCamera;
+    GameObject player; // 操作キャラ
 
     // カメラの回転速度
     [SerializeField] float rotate_speed = 3f;
@@ -23,7 +23,12 @@ public class CameraManager : MonoBehaviour
 
     void Start()
     {
-        //player = GameObject.Find("Cube");
+        //Playerをタグから取得
+        player = GameObject.FindGameObjectWithTag("Player");
+        //Main Cameraを取得
+        MainCamera = Camera.main;
+
+        MainCamera.transform.parent = transform;
 
         //CameraのAxisに相対的な位置をlocalPositionで指定
         MainCamera.transform.localPosition = new Vector3(0, 0, -3);
@@ -56,7 +61,7 @@ public class CameraManager : MonoBehaviour
         {
             //Cameraの角度にマウスからとった値を入れる
             transform.eulerAngles += new Vector3(
-                Input.GetAxis("Mouse Y") * rotate_speed,
+                Input.GetAxis("Mouse Y") * rotate_speed * -1,
                 Input.GetAxis("Mouse X") * rotate_speed
                 , 0);
 

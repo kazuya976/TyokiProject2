@@ -10,12 +10,18 @@ public class Area : MonoBehaviour
     //一定範囲内にいる間
     private void OnTriggerEnter(Collider other)
     {
-        invincibly = true;
+        if (other.gameObject.tag == "Player")
+        {
+            invincibly = true;
+        }
     }
 
     //一定範囲内からでたら
     private void OnTriggerExit(Collider other)
     {
-        invincibly = false;
+        if (other.gameObject.tag == "Player")
+        {
+            invincibly = false;
+        }
     }
 }

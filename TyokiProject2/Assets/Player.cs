@@ -8,6 +8,7 @@ using UnityEngine;
 
 public class Player : MonoBehaviour
 {
+    Shooting shooting;
 
     //移動スピード
     const float SPEED = 3f;
@@ -16,33 +17,18 @@ public class Player : MonoBehaviour
     private Animator animator;
 
     //Main Cameraを入れる
-    [SerializeField]
     Transform cam;
 
-    //Rigidbodyを入れる
-    Rigidbody rb;
-    //Capsule Colliderを入れる
-    CapsuleCollider caps;
 
     void Start()
     {
+        shooting = transform.Find("Shooting").GetComponent<Shooting>();
+
         //Animatorコンポーネントを取得
         animator = GetComponent<Animator>();
 
-        //Rigidコンポーネントを取得
-        rb = GetComponent<Rigidbody>();
-        //RigidbodyのConstraintsを三つともチェックを入れて
-        //勝手に回転しないようにする
-        rb.constraints = RigidbodyConstraints.FreezeRotation;
-
-        //CapsuleColliderコンポーネントを取得
-        caps = GetComponent<CapsuleCollider>();
-        //CapsuleColliderの中心の位置を決める
-        caps.center = new Vector3(0, 0.76f, 0);
-        //CapsuleColliderの半径を決める
-        caps.radius = 0.23f;
-        //CapsuleColliderの高さを決める
-        caps.height = 1.6f;
+        //メインカメラのTransformを取得
+        cam = Camera.main.transform;
     }
 
     void Update()
@@ -64,10 +50,22 @@ public class Player : MonoBehaviour
             transform.rotation = Quaternion.Euler(new Vector3(transform.rotation.x,
                 cam.eulerAngles.y, transform.rotation.z));
         }
+        else
+        {
+            //zが0より小さい（後退）するとスピードが落ちる
+        }
+        if (z < 0)
+        {
+            z *= 0.67f;
+        }
 
         //xとzの数値に基づいて移動
         transform.position += transform.forward * z + transform.right * x;
-    }
 
-    
+        //弾丸を発射する
+        if (Input.GetKey(KeyCode.Space))
+        {
+            shooting.Shot();
+        }
+    }
 }

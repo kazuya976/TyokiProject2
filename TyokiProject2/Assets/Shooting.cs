@@ -5,45 +5,60 @@ using UnityEngine;
 public class Shooting : MonoBehaviour
 {
     //デフォルトで発射される弾丸
-    public GameObject bullet;
+    [SerializeField] GameObject defaultBullet;
 
     //一定範囲内にいる間発射される弾丸
-    public GameObject Silver_bullet;
+    [SerializeField] GameObject silverBullet;
 
     //弾丸発射点
-    public Transform muzzle;
+    [SerializeField] Transform muzzle;
 
     //弾丸の速度
-    const float SPEED = 1000;
+    const float SPEED = 10000;
 
-    GameObject bullets;
+    //球を撃つ間隔
+    private const float SHOT_DELAY = 0.1f;
+    //最後に発射した時間
+    private float shotTime = SHOT_DELAY;
 
     void Update()
     {
-        //スペースキーが押されたとき
-        if (Input.GetKeyDown(KeyCode.Space))
+        //バグ防止
+        if (shotTime > SHOT_DELAY)
         {
-
-            //弾丸の複製
-            if (!Area.invincibly)
-            {
-                bullets = Instantiate(bullet) as GameObject;
-            }
-            else
-            {
-                bullets = Instantiate(Silver_bullet) as GameObject;
-            }
-           
-
-            Vector3 force;
-
-            force = this.gameObject.transform.forward * SPEED;
-
-            //Rigidbodyに力を加えて発射
-            bullets.GetComponent<Rigidbody>().AddForce(force);
-
-            //弾丸の位置を調整
-            bullets.transform.position = muzzle.position;
+            shotTime = SHOT_DELAY;    //発射間隔をリセット
         }
+        shotTime += Time.deltaTime;
+    }
+
+    public void Shot()
+    {
+        if (shotTime < SHOT_DELAY)
+        {
+            return;
+        }
+
+        GameObject bullet;
+        //弾丸の複製
+        if (!Area.invincibly)
+        {
+            bullet = Instantiate(defaultBullet) as GameObject;
+        }
+        else
+        {
+            bullet = Instantiate(silverBullet) as GameObject;
+        }
+        Vector3 force;  //発射するベクトル
+
+        force = gameObject.transform.forward * SPEED;
+
+        //Rigidbodyに力を加えて発射
+        bullet.GetComponent<Rigidbody>().AddForce(force);
+
+        //弾丸の位置を調整
+        bullet.transform.position = muzzle.position;
+
+        //発射間隔のカウントをリセット
+        shotTime = 0;
     }
 }
