@@ -8,7 +8,8 @@ public class VillagerScript : MonoBehaviour
     public enum State
     {
         Wait,
-        Walk
+        Walk,
+        Talk
     }
 
     //　目的地
@@ -32,6 +33,10 @@ public class VillagerScript : MonoBehaviour
     [SerializeField]
     private float waitTime = 5f;
 
+    //会話内容保持スクリプト
+    [SerializeField]
+    private Conversation conversation = null;
+
     void OnEnable()
     {
     }
@@ -52,6 +57,7 @@ public class VillagerScript : MonoBehaviour
 
     private void Update()
     {
+        //Debug.Log(this.state);
         //見回り
         if (state == State.Walk)
         {
@@ -63,17 +69,17 @@ public class VillagerScript : MonoBehaviour
             {
                 SetState(State.Wait);
             }
-            //到着していたら一定時間待つ
-            else if (state == State.Wait)
-            {
-                Debug.Log("止まってるよ");
-                elapsedTime += Time.deltaTime;
+        }
+        //到着していたら一定時間待つ
+        else if (state == State.Wait)
+        {
+            Debug.Log("止まってるよ");
+            elapsedTime += Time.deltaTime;
 
-                //待ち時間を超えたら次の目的地を設定
-                if (elapsedTime > waitTime)
-                {
-                    SetState(State.Walk);
-                }
+            //待ち時間を超えたら次の目的地を設定
+            if (elapsedTime > waitTime)
+            {
+                SetState(State.Walk);
             }
         }
     }
