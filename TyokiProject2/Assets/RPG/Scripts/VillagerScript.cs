@@ -36,6 +36,12 @@ public class VillagerScript : MonoBehaviour
     //会話内容保持スクリプト
     [SerializeField]
     private Conversation conversation = null;
+    //ユニティちゃんのTransform
+    private Transform conversationPartnerTransform;
+    //村人がユニティちゃんの方向に回転するスピード
+    [SerializeField]
+    private float rotationSpeed = 2f;
+    
 
     void OnEnable()
     {
@@ -82,10 +88,23 @@ public class VillagerScript : MonoBehaviour
                 SetState(State.Walk);
             }
         }
+        else if (state==State.Talk)
+        {
+            //村人がユニティちゃんの方向をある程度向くまで回転させる
+            if (Vector3.Angle(transform.forward, new Vector3(conversationPartnerTransform.position.x, transform.position.y, conversationPartnerTransform.position.z) - transform.position) > 5f)
+            {
+                transform.rotation = Quaternion.Lerp(transform.rotation, Quaternion.LookRotation(new Vector3(conversationPartnerTransform.position.x, transform.position.y, conversationPartnerTransform.position.z) - transform.position), rotationSpeed * Time.deltaTime);
+                animator.SetFloat("Speed", 1f);
+            }
+            else
+            {
+                animator.SetFloat("Speed", 0f);
+            }
+        }
     }
 
     //村人の状態変更
-    public void SetState(State state)
+    public void SetState(State state, Transform conversationPartnerTransform = null)
     {
         this.state = state;
         if (state == State.Wait)
@@ -98,6 +117,18 @@ public class VillagerScript : MonoBehaviour
             SetNextPosition();
             navMeshAgent.SetDestination(GetDestination());
         }
+        else if (state == State.Talk)
+        {
+            navMeshAgent.isStopped = true;
+            animator.SetFloat("Speed", 0f);
+            this.conversationPartnerTransform = conversationPartnerTransform;
+        }
+    }
+
+    //Conversionスクリプトを返す
+    public Conversation GetConversation()
+    {
+        return conversation;
     }
 
     //巡回地点を順に周る

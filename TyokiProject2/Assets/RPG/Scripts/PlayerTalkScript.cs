@@ -151,6 +151,12 @@ public class PlayerTalkScript : MonoBehaviour
     }
 
     //会話相手を返す
+    public GameObject GetConversationPartner()
+    {
+        return conversationPartner;
+    }
+
+    //会話を開始する
     public void StartTalking()
     {
         var villagerScript = conversationPartner.GetComponent<VillagerScript>();

@@ -34,7 +34,7 @@ public class Player : MonoBehaviour
     void Start()
     {
         state = State.Normal;
-        playerTalkScript = GetComponent<PlayerTalkSeript>();
+        playerTalkScript = GetComponent<PlayerTalkScript>();
 
         shooting = transform.Find("Shooting").GetComponent<Shooting>();
 
@@ -85,7 +85,7 @@ public class Player : MonoBehaviour
             }
 
             //会話相手がいる場合
-            if (playerTalkScript.GetConversationPartner != null
+            if (playerTalkScript.GetConversationPartner() != null
                 && Input.GetKey(KeyCode.Space)) 
             {
                 SetState(State.Talk);
